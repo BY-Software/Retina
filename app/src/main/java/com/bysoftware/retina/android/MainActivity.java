@@ -1,10 +1,13 @@
 package com.bysoftware.retina.android;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -19,6 +22,10 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,8 +55,8 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    //TODO: Set your own API key
-    private static final String API_KEY ="YOUR_GOOGLE_CLOUD_API_KEY";
+
+    private static final String API_KEY = BuildConfig.RETINA_API_KEY;
 
     private static final int REQUEST_PERMISSION = 1;
 
@@ -275,9 +282,30 @@ public class MainActivity extends AppCompatActivity {
                         textViewResult.setText(textResponse);
                         buttonTranslate.setVisibility(View.VISIBLE);
                         buttonTranslate.setOnClickListener(new View.OnClickListener() {
+                            @SuppressLint("StaticFieldLeak")
                             @Override
                             public void onClick(View v) {
-                                //TODO: Türkçe İngilizce Translate
+                                final Handler textViewHandler = new Handler();
+
+                                new AsyncTask<Void, Void, Void>() {
+                                    @Override
+                                    protected Void doInBackground(Void... params) {
+                                        TranslateOptions options = TranslateOptions.newBuilder()
+                                                .setApiKey(API_KEY)
+                                                .build();
+                                        Translate translate = options.getService();
+                                        final Translation translation =
+                                                translate.translate(textResponse,
+                                                        Translate.TranslateOption.targetLanguage("en"));
+                                        textViewHandler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                textViewTranslate.setText(translation.getTranslatedText());
+                                            }
+                                        });
+                                        return null;
+                                    }
+                                }.execute();
                             }
                         });
                         dismissProgressDialogIfShowing();
