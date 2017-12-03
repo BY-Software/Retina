@@ -8,10 +8,6 @@ import android.support.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Created by yucel on 14.11.2017.
- */
-
 class MediaRecorderManager {
 
     private boolean isRecording = false;
