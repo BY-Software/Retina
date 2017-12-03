@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -29,6 +30,7 @@ import com.google.cloud.translate.Translation;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 import butterknife.BindView;
@@ -69,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.button_translate)
     Button buttonTranslate;
 
+    @BindView(R.id.buttonSpeak)
+    Button buttonSpeak;
+
     @BindView(R.id.text_translate)
     TextView textViewTranslate;
 
@@ -85,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
     private MediaRecorderManager mediaRecorderManager;
 
     private ArrayAdapter<SupportedLanguageWrapper> spinnerAdapter;
+
+    private TextToSpeech textToSpeech;
 
     private static final class SupportedLanguageWrapper {
         @NonNull
@@ -281,6 +288,7 @@ public class MainActivity extends AppCompatActivity {
                         final String textResponse = string.substring(string.indexOf("='") + 2, string.indexOf("',"));
                         textViewResult.setText(textResponse);
                         buttonTranslate.setVisibility(View.VISIBLE);
+                        buttonSpeak.setVisibility(View.VISIBLE);
                         buttonTranslate.setOnClickListener(new View.OnClickListener() {
                             @SuppressLint("StaticFieldLeak")
                             @Override
@@ -308,6 +316,30 @@ public class MainActivity extends AppCompatActivity {
                                 }.execute();
                             }
                         });
+    /* TODO
+    *  Speech API'den response gelince konuşması sağlanacak
+    * */
+
+                        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if (status != TextToSpeech.ERROR) {
+                                    Locale locale = new Locale("tr", "TR");
+                                    textToSpeech.setLanguage(locale);
+                                }
+                            }
+                        });
+
+                        buttonSpeak.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                String toSpeak = textViewResult.getText().toString();
+                                Toast.makeText(getApplicationContext(), toSpeak, Toast.LENGTH_SHORT).show();
+                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                            }
+                        });
+
+
                         dismissProgressDialogIfShowing();
                     }
 
@@ -340,6 +372,7 @@ public class MainActivity extends AppCompatActivity {
             previousRequest.unsubscribe();
         }
     }
+
 
     private AtomicReference<ProgressDialog> dialogAtomicReference = new AtomicReference<>();
 
