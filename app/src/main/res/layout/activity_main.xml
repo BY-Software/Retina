@@ -19,23 +19,12 @@
         android:onClick="toggleRecord"
         android:text="@string/start_recording" />
 
-    <Spinner
-        android:id="@+id/spinner_language_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <ScrollView
+    <TextView
+        android:id="@+id/text_result"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp">
-
-        <TextView
-            android:id="@+id/text_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-    </ScrollView>
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/buttonSpeak"
@@ -44,27 +33,13 @@
         android:layout_height="wrap_content"
         android:text="SPEAK"
 
-        android:visibility="invisible" />
+        />
 
-    <Button
-        android:id="@+id/button_translate"
-        style="@style/Widget.AppCompat.Button.Colored"
+    <TextView
+        android:id="@+id/text_translate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/translate"
-        android:visibility="invisible" />
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp">
-
-        <TextView
-            android:id="@+id/text_translate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-    </ScrollView>
 </LinearLayout>
