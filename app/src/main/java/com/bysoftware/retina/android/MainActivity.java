@@ -42,12 +42,10 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.button_record)
     Button buttonRecord;
 
-    @BindView(R.id.buttonSpeak)
-    Button buttonSpeak;
-
     @BindView(R.id.text_translate)
     TextView textViewTranslate;
 
+    private String speachText;
 
     private Unbinder butterKnifeUnbinder;
 
@@ -103,19 +101,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         switch (requestCode) {
             case REQ_CODE_SPEECH_INPUT: {
                 if (resultCode == RESULT_OK && null != data) {
-
                     ArrayList<String> result = data
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     response = result.get(0).toLowerCase();
                     textViewResult.setText(response);
-                    // Translate text
-                    if (response != null) {
-                        final Handler textViewHandler = new Handler();
 
+                    if (response != null) {
+                        // Translate text
                         new AsyncTask<Void, Void, Void>() {
                             @Override
                             protected Void doInBackground(Void... params) {
@@ -126,37 +121,37 @@ public class MainActivity extends AppCompatActivity {
                                 final Translation translation =
                                         translate.translate(response,
                                                 Translate.TranslateOption.targetLanguage("en"));
-                                textViewHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                            @Override
-                                            public void onInit(int status) {
-                                                if (status != TextToSpeech.ERROR) {
-                                                    Locale locale = new Locale("en", "EN");
-                                                    textToSpeech.setLanguage(locale);
-                                                }
-                                            }
-                                        });
-    /* TODO
-    Response gelince konuştur
-    */
 
-                                        textViewTranslate.setText(translation.getTranslatedText());
-
-                                        Toast.makeText(getApplicationContext(), translation.getTranslatedText(), Toast.LENGTH_SHORT).show();
-                                        textToSpeech.speak(translation.getTranslatedText(), TextToSpeech.QUEUE_FLUSH, null);
-                                    }
-                                });
+                                speachText = translation.getTranslatedText();
                                 return null;
                             }
                         }.execute();
-                    }
 
+                        //Response To Speech
+                        final Handler textViewHandler = new Handler();
+                        textViewHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                    @Override
+                                    public void onInit(int status) {
+                                        if (status != TextToSpeech.ERROR) {
+                                            Locale locale = new Locale("en", "EN");
+                                            textToSpeech.setLanguage(locale);
+
+                                            textToSpeech.speak(speachText, TextToSpeech.QUEUE_FLUSH, null);
+
+                                            textViewTranslate.setText(speachText);
+                                            Toast.makeText(getApplicationContext(), speachText, Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
                 }
                 break;
             }
-
         }
     }
 
@@ -165,7 +160,5 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-
-
 }
 
