@@ -1,4 +1,4 @@
-package com.bysoftware.retina.android;
+package com.bysoftware.retina.android.activity;
 
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
@@ -15,6 +15,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bysoftware.retina.android.BuildConfig;
+import com.bysoftware.retina.android.R;
+import com.bysoftware.retina.android.utility.DoubleClickListener;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
@@ -66,11 +69,17 @@ public class MainActivity extends AppCompatActivity {
                 .setApiKey(API_KEY)
                 .build();
 
-        buttonRecord.setOnClickListener(new View.OnClickListener() {
+        buttonRecord.setOnClickListener(new DoubleClickListener() {
+            @Override
+            public void onSingleClick(View v) {
+                //TODO: Add Camera
+                Toast.makeText(getApplicationContext(), "SINGLE CLICK", Toast.LENGTH_SHORT).show();
+            }
 
             @Override
-            public void onClick(View v) {
+            public void onDoubleClick(View v) {
                 promptSpeechInput();
+                Toast.makeText(getApplicationContext(), "DOUBLE CLICK", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -91,9 +100,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
         } catch (ActivityNotFoundException a) {
-            Toast.makeText(getApplicationContext(),
-                    getString(R.string.speech_not_supported),
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.speech_not_supported), Toast.LENGTH_SHORT).show();
         }
     }
 
