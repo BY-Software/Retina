@@ -54,9 +54,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    // Modules
-    compile project(path: ':jerry.sdk.google')
-
     // ********** Google **********
     // Support Library
     compile "com.android.support:appcompat-v7:$support_library_version"

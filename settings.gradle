@@ -1,1 +1,1 @@
-include ':app', ':jerry.sdk.google'
+include ':app'

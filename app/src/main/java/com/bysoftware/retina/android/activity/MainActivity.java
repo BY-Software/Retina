@@ -28,9 +28,6 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import jerry.speechapi.auth.Authentication;
-import jerry.speechapi.service.GoogleSpeechService;
-import jerry.speechapi.service.GoogleSpeechServiceFactory;
 
 public class MainActivity extends AppCompatActivity {
     private static final String API_KEY = BuildConfig.RETINA_API_KEY;
@@ -52,10 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Unbinder butterKnifeUnbinder;
 
-    private GoogleSpeechService speechService;
-
-    private Authentication authentication;
-
     private TextToSpeech textToSpeech;
 
     @Override
@@ -63,11 +56,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         butterKnifeUnbinder = ButterKnife.bind(this);
-
-        speechService = GoogleSpeechServiceFactory.newService();
-        authentication = new Authentication.Builder()
-                .setApiKey(API_KEY)
-                .build();
 
         buttonRecord.setOnClickListener(new DoubleClickListener() {
             @Override
