@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Retina.iml" filepath="$PROJECT_DIR$/Retina.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/jerry.sdk.google/jerry.sdk.google.iml" filepath="$PROJECT_DIR$/jerry.sdk.google/jerry.sdk.google.iml" />
     </modules>
   </component>
 </project>
