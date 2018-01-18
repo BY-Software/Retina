@@ -65,7 +65,6 @@ import butterknife.Unbinder;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private static final String API_KEY = BuildConfig.RETINA_API_KEY;
-    private static final String CLOUD_VISION_API_KEY = BuildConfig.RETINA_API_KEY;
 
     private static final String TAG = "MainActivity";
     private static final int RECORD_REQUEST_CODE = 101;
@@ -287,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
                     JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
 
-                    VisionRequestInitializer requestInitializer = new VisionRequestInitializer(CLOUD_VISION_API_KEY);
+                    VisionRequestInitializer requestInitializer = new VisionRequestInitializer(API_KEY);
 
                     Vision.Builder builder = new Vision.Builder(httpTransport, jsonFactory, null);
                     builder.setVisionRequestInitializer(requestInitializer);
@@ -312,7 +311,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             protected void onPostExecute(String result) {
                 visionAPIData.setText(result);
                 final String[] speechTxtArray = result.split("0");
-                final String speechTxt = speechTxtArray[0];
+                final String speechTextEnglish = speechTxtArray[0];
+
+                // Translate text
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        TranslateOptions options = TranslateOptions.newBuilder()
+                                .setApiKey(API_KEY)
+                                .build();
+                        Translate translate = options.getService();
+                        final Translation translation =
+                                translate.translate(speechTextEnglish,
+                                        Translate.TranslateOption.targetLanguage("tr"));
+
+                        speechText = translation.getTranslatedText();
+                        return null;
+                    }
+                }.execute();
+
                 //Response To Speech
                 final Handler textViewHandler = new Handler();
                 textViewHandler.post(new Runnable() {
@@ -322,10 +339,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             @Override
                             public void onInit(int status) {
                                 if (status != TextToSpeech.ERROR) {
-                                    Locale locale = new Locale("en", "EN");
+                                    Locale locale = new Locale("tr", "TR");
                                     textToSpeech.setLanguage(locale);
 
-                                    textToSpeech.speak(speechTxt, TextToSpeech.QUEUE_FLUSH, null);
+                                    textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
                                 }
                             }
                         });
@@ -390,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         String message = "";
         DominantColorsAnnotation colors = imageProperties.getDominantColors();
         for (ColorInfo color : colors.getColors()) {
-            message = message + "" + color.getPixelFraction() + " - " + color.getColor().getRed() + " - " + color.getColor().getGreen() + " - " + color.getColor().getBlue();
+            message = message + "" + color.getPixelFraction() + " RED: " + color.getColor().getRed() + " GREEN: " + color.getColor().getGreen() + " BLUE: " + color.getColor().getBlue();
             message = message + "\n";
         }
         return message;
