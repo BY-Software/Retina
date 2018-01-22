@@ -6,10 +6,10 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
@@ -20,11 +20,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,19 +40,19 @@ import com.google.api.services.vision.v1.model.AnnotateImageRequest;
 import com.google.api.services.vision.v1.model.AnnotateImageResponse;
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
-import com.google.api.services.vision.v1.model.ColorInfo;
-import com.google.api.services.vision.v1.model.DominantColorsAnnotation;
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
-import com.google.api.services.vision.v1.model.ImageProperties;
-import com.google.api.services.vision.v1.model.SafeSearchAnnotation;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
+import com.otaliastudios.cameraview.CameraListener;
+import com.otaliastudios.cameraview.CameraView;
+import com.otaliastudios.cameraview.Size;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -67,12 +65,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private static final String API_KEY = BuildConfig.RETINA_API_KEY;
 
     private static final String TAG = "MainActivity";
+    private static final int REQ_CODE_SPEECH_INPUT = 100;
     private static final int RECORD_REQUEST_CODE = 101;
     private static final int CAMERA_REQUEST_CODE = 102;
 
     private String response;
 
-    private final int REQ_CODE_SPEECH_INPUT = 100;
+    CameraListener cameraListener;
+    private boolean mCapturingPicture;
+    private Size mCaptureNativeSize;
+    private long mCaptureTime;
+    private static WeakReference<byte[]> image;
 
     @BindView(R.id.text_result)
     TextView textViewResult;
@@ -89,17 +92,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @BindView(R.id.imageView)
     ImageView imageView;
 
-    @BindView(R.id.spinnerVisionAPI)
-    Spinner spinnerVisionAPI;
-
     @BindView(R.id.visionAPIData)
     TextView visionAPIData;
 
+    @BindView(R.id.camera)
+    CameraView camera;
+
     private Feature feature;
     private Bitmap bitmap;
-    private String[] visionAPI = new String[]{"LABEL_DETECTION", "LANDMARK_DETECTION", "LOGO_DETECTION", "SAFE_SEARCH_DETECTION", "IMAGE_PROPERTIES"};
 
-    private String api = visionAPI[0];
+    private String api = "LABEL_DETECTION";
 
     private String speechText;
 
@@ -114,18 +116,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         butterKnifeUnbinder = ButterKnife.bind(this);
 
         feature = new Feature();
-        feature.setType(visionAPI[0]);
+        feature.setType(api);
         feature.setMaxResults(10);
 
-        spinnerVisionAPI.setOnItemSelectedListener(this);
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, visionAPI);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerVisionAPI.setAdapter(dataAdapter);
+        camera.addCameraListener(new CameraListener() {
+            public void onPictureTaken(byte[] jpeg) {
+                onPicture(jpeg);
+            }
+        });
 
         buttonRecord.setOnClickListener(new DoubleClickListener() {
             @Override
             public void onSingleClick(View v) {
-                takePictureFromCamera();
+                camera.captureSnapshot();
                 Toast.makeText(getApplicationContext(), "SINGLE CLICK", Toast.LENGTH_SHORT).show();
             }
 
@@ -138,9 +141,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        camera.stop();
+    }
+
+    @Override
     protected void onDestroy() {
         butterKnifeUnbinder.unbind();
         super.onDestroy();
+        camera.destroy();
     }
 
     private void promptSpeechInput() {
@@ -224,14 +234,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return true;
     }
 
-    public void getSpeech(String speech){
-
-    }
-
     //Vision
     @Override
     protected void onResume() {
         super.onResume();
+        camera.start();
         if (checkPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             buttonRecord.setVisibility(View.VISIBLE);
         } else {
@@ -246,11 +253,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void makeRequest(String permission) {
         ActivityCompat.requestPermissions(this, new String[]{permission}, RECORD_REQUEST_CODE);
-    }
-
-    public void takePictureFromCamera() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, CAMERA_REQUEST_CODE);
     }
 
     @Override
@@ -370,46 +372,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         List<EntityAnnotation> entityAnnotations;
 
         String message = "";
-        switch (api) {
-            case "LANDMARK_DETECTION":
-                entityAnnotations = imageResponses.getLandmarkAnnotations();
-                message = formatAnnotation(entityAnnotations);
-                break;
-            case "LOGO_DETECTION":
-                entityAnnotations = imageResponses.getLogoAnnotations();
-                message = formatAnnotation(entityAnnotations);
-                break;
-            case "SAFE_SEARCH_DETECTION":
-                SafeSearchAnnotation annotation = imageResponses.getSafeSearchAnnotation();
-                message = getImageAnnotation(annotation);
-                break;
-            case "IMAGE_PROPERTIES":
-                ImageProperties imageProperties = imageResponses.getImagePropertiesAnnotation();
-                message = getImageProperty(imageProperties);
-                break;
-            case "LABEL_DETECTION":
-                entityAnnotations = imageResponses.getLabelAnnotations();
-                message = formatAnnotation(entityAnnotations);
-                break;
-        }
-        return message;
-    }
 
-    private String getImageAnnotation(SafeSearchAnnotation annotation) {
-        return String.format("adult: %s\nmedical: %s\nspoofed: %s\nviolence: %s\n",
-                annotation.getAdult(),
-                annotation.getMedical(),
-                annotation.getSpoof(),
-                annotation.getViolence());
-    }
+        entityAnnotations = imageResponses.getLabelAnnotations();
+        message = formatAnnotation(entityAnnotations);
 
-    private String getImageProperty(ImageProperties imageProperties) {
-        String message = "";
-        DominantColorsAnnotation colors = imageProperties.getDominantColors();
-        for (ColorInfo color : colors.getColors()) {
-            message = message + "" + color.getPixelFraction() + " RED: " + color.getColor().getRed() + " GREEN: " + color.getColor().getGreen() + " BLUE: " + color.getColor().getBlue();
-            message = message + "\n";
-        }
         return message;
     }
 
@@ -438,5 +404,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    private void onPicture(byte[] jpeg) {
+        mCapturingPicture = false;
+        Bitmap bitmap = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length);
+        long callbackTime = System.currentTimeMillis();
+
+        // This can happen if picture was taken with a gesture.
+        if (mCaptureTime == 0) mCaptureTime = callbackTime - 300;
+        if (mCaptureNativeSize == null) mCaptureNativeSize = camera.getPictureSize();
+        imageView.setImageBitmap(bitmap);
+
+        callCloudVision(bitmap, feature);
+
+        mCaptureTime = 0;
+        mCaptureNativeSize = null;
     }
 }
