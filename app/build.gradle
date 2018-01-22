@@ -89,5 +89,8 @@ dependencies {
     compile 'com.google.http-client:google-http-client-gson:1.20.0' exclude module: 'httpclient'
     compile 'com.google.apis:google-api-services-vision:v1-rev2-1.21.0' exclude module: 'httpclient'
 
+    //CameraView
+    compile 'com.otaliastudios:cameraview:1.4.1'
+
     testCompile 'junit:junit:4.12'
 }
