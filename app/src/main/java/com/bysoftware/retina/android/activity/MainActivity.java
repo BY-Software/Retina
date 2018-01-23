@@ -115,6 +115,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_main);
         butterKnifeUnbinder = ButterKnife.bind(this);
 
+        if (checkPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            buttonRecord.setVisibility(View.VISIBLE);
+        } else {
+            buttonRecord.setVisibility(View.INVISIBLE);
+            makeRequest(Manifest.permission.CAMERA);
+        }
+
         feature = new Feature();
         feature.setType(api);
         feature.setMaxResults(10);
@@ -239,12 +246,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onResume() {
         super.onResume();
         camera.start();
-        if (checkPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            buttonRecord.setVisibility(View.VISIBLE);
-        } else {
-            buttonRecord.setVisibility(View.INVISIBLE);
-            makeRequest(Manifest.permission.CAMERA);
-        }
     }
 
     private int checkPermission(String permission) {
