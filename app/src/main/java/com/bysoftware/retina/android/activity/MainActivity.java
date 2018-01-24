@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.bysoftware.retina.android.BuildConfig;
 import com.bysoftware.retina.android.R;
 import com.bysoftware.retina.android.utility.DoubleClickListener;
+import com.crashlytics.android.Crashlytics;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
@@ -50,6 +51,7 @@ import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.Size;
 
+import io.fabric.sdk.android.Fabric;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -112,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         butterKnifeUnbinder = ButterKnife.bind(this);
 
