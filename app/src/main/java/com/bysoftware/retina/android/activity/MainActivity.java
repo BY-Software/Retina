@@ -3,6 +3,7 @@ package com.bysoftware.retina.android.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -10,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
@@ -54,6 +56,7 @@ import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.Size;
 
 import io.fabric.sdk.android.Fabric;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -75,11 +78,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private String response;
 
-    CameraListener cameraListener;
     private boolean mCapturingPicture;
     private Size mCaptureNativeSize;
     private long mCaptureTime;
-    private static WeakReference<byte[]> image;
 
     @BindView(R.id.text_result)
     TextView textViewResult;
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().hide();
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
@@ -144,12 +145,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onSingleClick(View v) {
                 camera.captureSnapshot();
+                Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                vibe.vibrate(100);
                 Toast.makeText(getApplicationContext(), "SINGLE CLICK", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onDoubleClick(View v) {
                 promptSpeechInput();
+                Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                vibe.vibrate(500);
                 Toast.makeText(getApplicationContext(), "DOUBLE CLICK", Toast.LENGTH_SHORT).show();
             }
         });
