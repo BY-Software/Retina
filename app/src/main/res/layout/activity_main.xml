@@ -1,41 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.bysoftware.retina.android.activity.MainActivity">
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin">
+        android:layout_height="match_parent">
 
         <Button
             android:id="@+id/button_record"
-            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/start_recording" />
+            android:layout_height="match_parent"
+            android:background="@android:color/black"
+            android:text="@string/start_recording"
+            android:textColor="@android:color/background_light"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="16dp" />
 
-        <TextView
-            android:id="@+id/text_result"
+        <com.otaliastudios.cameraview.CameraView
+            android:id="@+id/camera"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            app:cameraJpegQuality="100"
+            app:cameraPictureSizeMaxHeight="640"
+            app:cameraPictureSizeMaxWidth="480"
+            app:cameraPictureSizeMinHeight="640"
+            app:cameraPictureSizeMinWidth="480"
+            app:cameraPlaySounds="true"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="190dp" />
 
         <TextView
             android:id="@+id/text_translate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="98dp" />
 
         <ProgressBar
             android:id="@+id/imageProgress"
@@ -44,35 +51,35 @@
             android:layout_height="wrap_content"
             android:indeterminate="true"
             android:visibility="invisible"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="125dp"
             tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp" />
+            tools:layout_editor_absoluteX="24dp"
+            tools:layout_editor_absoluteY="141dp" />
+
+        <TextView
+            android:id="@+id/text_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="71dp" />
 
         <TextView
             android:id="@+id/visionAPIData"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="24dp"
             android:gravity="left"
             android:textSize="18dp"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="165dp"
             tools:text="Text Label" />
+    </android.support.constraint.ConstraintLayout>
 
-
-        <com.otaliastudios.cameraview.CameraView
-            android:id="@+id/camera"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cameraJpegQuality="100"
-            app:cameraPictureSizeMinWidth="480"
-            app:cameraPictureSizeMinHeight="640"
-            app:cameraPictureSizeMaxWidth="480"
-            app:cameraPictureSizeMaxHeight="640"
-            app:cameraPlaySounds="true" />
-
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>
