@@ -20,7 +20,8 @@
             android:text="@string/start_recording"
             android:textColor="@android:color/background_light"
             tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="16dp" />
+            tools:layout_editor_absoluteY="16dp"
+            tools:ignore="MissingConstraints" />
 
         <com.otaliastudios.cameraview.CameraView
             android:id="@+id/camera"
@@ -33,7 +34,8 @@
             app:cameraPictureSizeMinWidth="480"
             app:cameraPlaySounds="true"
             tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="190dp" />
+            tools:layout_editor_absoluteY="190dp"
+            tools:ignore="MissingConstraints" />
 
         <TextView
             android:id="@+id/text_translate"
@@ -42,7 +44,8 @@
             android:textSize="20sp"
             android:textStyle="bold"
             tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="98dp" />
+            tools:layout_editor_absoluteY="98dp"
+            tools:ignore="MissingConstraints" />
 
         <ProgressBar
             android:id="@+id/imageProgress"
@@ -53,14 +56,16 @@
             android:visibility="invisible"
             tools:layout_editor_absoluteX="16dp"
             tools:layout_editor_absoluteY="125dp"
-            tools:visibility="visible" />
+            tools:visibility="visible"
+            tools:ignore="MissingConstraints" />
 
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:layout_editor_absoluteX="24dp"
-            tools:layout_editor_absoluteY="141dp" />
+            tools:layout_editor_absoluteY="141dp"
+            tools:ignore="ContentDescription,MissingConstraints" />
 
         <TextView
             android:id="@+id/text_result"
@@ -69,17 +74,19 @@
             android:textSize="20sp"
             android:textStyle="bold"
             tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="71dp" />
+            tools:layout_editor_absoluteY="71dp"
+            tools:ignore="MissingConstraints" />
 
         <TextView
             android:id="@+id/visionAPIData"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="left"
-            android:textSize="18dp"
+            android:textSize="18sp"
             tools:layout_editor_absoluteX="16dp"
             tools:layout_editor_absoluteY="165dp"
-            tools:text="Text Label" />
+            tools:text="Text Label"
+            tools:ignore="MissingConstraints,RtlHardcoded" />
     </android.support.constraint.ConstraintLayout>
 
 </LinearLayout>

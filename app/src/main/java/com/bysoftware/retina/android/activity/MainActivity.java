@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -81,6 +83,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private boolean mCapturingPicture;
     private Size mCaptureNativeSize;
     private long mCaptureTime;
+    private int maxVolume;
+
+    private Feature feature;
+    private Bitmap bitmap;
+
+    private String api = "LABEL_DETECTION";
+
+    private String speechText;
+
+    private Unbinder butterKnifeUnbinder;
+
+    private TextToSpeech textToSpeech;
+
+    AudioManager audioManager;
 
     @BindView(R.id.text_result)
     TextView textViewResult;
@@ -103,16 +119,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @BindView(R.id.camera)
     CameraView camera;
 
-    private Feature feature;
-    private Bitmap bitmap;
-
-    private String api = "LABEL_DETECTION";
-
-    private String speechText;
-
-    private Unbinder butterKnifeUnbinder;
-
-    private TextToSpeech textToSpeech;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +129,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         butterKnifeUnbinder = ButterKnife.bind(this);
+
+        //Set max volume
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, 0);
 
         if (checkPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             buttonRecord.setVisibility(View.VISIBLE);
