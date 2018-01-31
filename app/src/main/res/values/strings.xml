@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Retina</string>
-    <string name="start_recording">SINGLE CLICK FOR CAMERA - DOUBLE CLICK FOR RECORDING</string>
     <string name="start_speech">Start speech</string>
     <string name="translate">Translate</string>
 
