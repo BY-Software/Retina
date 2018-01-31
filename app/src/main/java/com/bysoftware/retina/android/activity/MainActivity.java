@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -62,7 +61,6 @@ import io.fabric.sdk.android.Fabric;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -298,8 +296,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             editor = sharedPreferences.edit();
             editor.putBoolean("firstRun", false);
             editor.commit();
+        }
         camera.start();
-    }
     }
 
     private int checkPermission(String permission) {
@@ -388,23 +386,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }.execute();
 
                 //Response To Speech
-                    final Handler textViewHandler = new Handler();
-                    textViewHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                @Override
-                                public void onInit(int status) {
-                                    if (status != TextToSpeech.ERROR) {
-                                        Locale locale = new Locale("tr", "TR");
-                                        textToSpeech.setLanguage(locale);
+                final Handler textViewHandler = new Handler();
+                textViewHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if (status != TextToSpeech.ERROR) {
+                                    Locale locale = new Locale("tr", "TR");
+                                    textToSpeech.setLanguage(locale);
 
-                                        textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
-                                    }
+                                    textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
                                 }
-                            });
-                        }
-                    });
+                            }
+                        });
+                    }
+                });
                 imageUploadProgress.setVisibility(View.INVISIBLE);
             }
         }.execute();
