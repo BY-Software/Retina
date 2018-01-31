@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -97,6 +98,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private TextToSpeech textToSpeech;
     private TextToSpeech openingMessage;
 
+    SharedPreferences sharedPreferences = null;
+    SharedPreferences.Editor editor;
+
     AudioManager audioManager;
 
     @BindView(R.id.text_result)
@@ -131,24 +135,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_main);
         butterKnifeUnbinder = ButterKnife.bind(this);
 
-        //Opening voice response
-        final Handler textViewHandler = new Handler();
-        textViewHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                openingMessage = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                    @Override
-                    public void onInit(int status) {
-                        if (status != TextToSpeech.ERROR) {
-                            Locale locale = new Locale("tr", "TR");
-                            openingMessage.setLanguage(locale);
-                            String toSpeak = "Kamerayı açmak için bir kere, mikrofonu açmak için iki kere ekrana dokununuz";
-                            openingMessage.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                        }
-                    }
-                });
-            }
-        });
+        sharedPreferences = getSharedPreferences("com.bysoftware.retina.android", MODE_PRIVATE);
 
         //Set max volume
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -289,7 +276,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onResume() {
         super.onResume();
+        if (sharedPreferences.getBoolean("firstRun", true)) {
+            //Opening voice response
+            final Handler textViewHandler = new Handler();
+            textViewHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    openingMessage = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                        @Override
+                        public void onInit(int status) {
+                            if (status != TextToSpeech.ERROR) {
+                                Locale locale = new Locale("tr", "TR");
+                                openingMessage.setLanguage(locale);
+                                String toSpeak = "Kamerayı açmak için bir kere, mikrofonu açmak için iki kere ekrana dokununuz";
+                                openingMessage.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                            }
+                        }
+                    });
+                }
+            });
+            editor = sharedPreferences.edit();
+            editor.putBoolean("firstRun", false);
+            editor.commit();
         camera.start();
+    }
     }
 
     private int checkPermission(String permission) {
