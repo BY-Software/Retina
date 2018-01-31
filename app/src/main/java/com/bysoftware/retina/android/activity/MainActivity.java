@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private Unbinder butterKnifeUnbinder;
 
     private TextToSpeech textToSpeech;
+    private TextToSpeech openingMessage;
 
     AudioManager audioManager;
 
@@ -129,6 +130,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         butterKnifeUnbinder = ButterKnife.bind(this);
+
+        //Opening voice response
+        final Handler textViewHandler = new Handler();
+        textViewHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                openingMessage = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                    @Override
+                    public void onInit(int status) {
+                        if (status != TextToSpeech.ERROR) {
+                            Locale locale = new Locale("tr", "TR");
+                            openingMessage.setLanguage(locale);
+                            String toSpeak = "Kamerayı açmak için bir kere, mikrofonu açmak için iki kere ekrana dokununuz";
+                            openingMessage.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                        }
+                    }
+                });
+            }
+        });
 
         //Set max volume
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -358,23 +378,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }.execute();
 
                 //Response To Speech
-                final Handler textViewHandler = new Handler();
-                textViewHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                            @Override
-                            public void onInit(int status) {
-                                if (status != TextToSpeech.ERROR) {
-                                    Locale locale = new Locale("tr", "TR");
-                                    textToSpeech.setLanguage(locale);
+                    final Handler textViewHandler = new Handler();
+                    textViewHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                @Override
+                                public void onInit(int status) {
+                                    if (status != TextToSpeech.ERROR) {
+                                        Locale locale = new Locale("tr", "TR");
+                                        textToSpeech.setLanguage(locale);
 
-                                    textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
+                                        textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
+                                    }
                                 }
-                            }
-                        });
-                    }
-                });
+                            });
+                        }
+                    });
                 imageUploadProgress.setVisibility(View.INVISIBLE);
             }
         }.execute();
