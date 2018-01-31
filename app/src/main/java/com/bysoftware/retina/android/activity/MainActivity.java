@@ -184,9 +184,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     protected void onDestroy() {
+        camera.destroy();
         butterKnifeUnbinder.unbind();
         super.onDestroy();
-        camera.destroy();
     }
 
     private void promptSpeechInput() {
