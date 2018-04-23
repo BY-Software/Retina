@@ -212,46 +212,65 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     response = result.get(0).toLowerCase();
                     textViewResult.setText(response);
+                    String stringTemp;
 
                     if (response != null) {
-                        // Translate text
-                        new AsyncTask<Void, Void, Void>() {
-                            @Override
-                            protected Void doInBackground(Void... params) {
-                                TranslateOptions options = TranslateOptions.newBuilder()
-                                        .setApiKey(API_KEY)
-                                        .build();
-                                Translate translate = options.getService();
-                                final Translation translation =
-                                        translate.translate(response,
-                                                Translate.TranslateOption.targetLanguage("en"));
-
-                                speechText = translation.getTranslatedText();
-                                return null;
-                            }
-                        }.execute();
-
-                        //Response To Speech
-                        final Handler textViewHandler = new Handler();
-                        textViewHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                    @Override
-                                    public void onInit(int status) {
-                                        if (status != TextToSpeech.ERROR) {
-                                            Locale locale = new Locale("en", "EN");
-                                            textToSpeech.setLanguage(locale);
-
-                                            textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
-
-                                            textViewTranslate.setText(speechText);
-                                            Toast.makeText(getApplicationContext(), speechText, Toast.LENGTH_SHORT).show();
+                        stringTemp = response.replaceAll("\\s", "");
+                        if (stringTemp.equals("watch")) {
+                            //Response To Speech
+                            final Handler textViewHandler = new Handler();
+                            textViewHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                        @Override
+                                        public void onInit(int status) {
+                                            if (status != TextToSpeech.ERROR) {
+                                                Locale locale = new Locale("tr", "TR");
+                                                textToSpeech.setLanguage(locale);
+                                                textToSpeech.speak("sâât", TextToSpeech.QUEUE_FLUSH, null);
+                                            }
                                         }
-                                    }
-                                });
-                            }
-                        });
+                                    });
+                                }
+                            });
+                        } else {
+                            // Translate text
+                            new AsyncTask<Void, Void, Void>() {
+                                @Override
+                                protected Void doInBackground(Void... params) {
+                                    TranslateOptions options = TranslateOptions.newBuilder()
+                                            .setApiKey(API_KEY)
+                                            .build();
+                                    Translate translate = options.getService();
+                                    final Translation translation =
+                                            translate.translate(response,
+                                                    Translate.TranslateOption.targetLanguage("tr"));
+
+                                    speechText = translation.getTranslatedText();
+                                    return null;
+                                }
+                            }.execute();
+
+                            //Response To Speech
+                            final Handler textViewHandler = new Handler();
+                            textViewHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                        @Override
+                                        public void onInit(int status) {
+                                            if (status != TextToSpeech.ERROR) {
+                                                Locale locale = new Locale("tr", "TR");
+                                                textToSpeech.setLanguage(locale);
+
+                                                textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                        }
                     }
                 }
                 break;
@@ -367,42 +386,63 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 visionAPIData.setText(result);
                 final String[] speechTxtArray = result.split("0");
                 final String speechTextEnglish = speechTxtArray[0];
-
-                // Translate text
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        TranslateOptions options = TranslateOptions.newBuilder()
-                                .setApiKey(API_KEY)
-                                .build();
-                        Translate translate = options.getService();
-                        final Translation translation =
-                                translate.translate(speechTextEnglish,
-                                        Translate.TranslateOption.targetLanguage("tr"));
-
-                        speechText = translation.getTranslatedText();
-                        return null;
-                    }
-                }.execute();
-
-                //Response To Speech
-                final Handler textViewHandler = new Handler();
-                textViewHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                            @Override
-                            public void onInit(int status) {
-                                if (status != TextToSpeech.ERROR) {
-                                    Locale locale = new Locale("tr", "TR");
-                                    textToSpeech.setLanguage(locale);
-
-                                    textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
+                String stringTempCloud;
+                stringTempCloud = speechTextEnglish.replaceAll("\\s", "");
+                if (stringTempCloud.equals("watch")) {
+                    //Response To Speech
+                    final Handler textViewHandler = new Handler();
+                    textViewHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                @Override
+                                public void onInit(int status) {
+                                    if (status != TextToSpeech.ERROR) {
+                                        Locale locale = new Locale("tr", "TR");
+                                        textToSpeech.setLanguage(locale);
+                                        textToSpeech.speak("sâât", TextToSpeech.QUEUE_FLUSH, null);
+                                    }
                                 }
-                            }
-                        });
-                    }
-                });
+                            });
+                        }
+                    });
+                } else {
+                    // Translate text
+                    new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            TranslateOptions options = TranslateOptions.newBuilder()
+                                    .setApiKey(API_KEY)
+                                    .build();
+                            Translate translate = options.getService();
+                            final Translation translation =
+                                    translate.translate(speechTextEnglish,
+                                            Translate.TranslateOption.targetLanguage("tr"));
+
+                            speechText = translation.getTranslatedText();
+                            return null;
+                        }
+                    }.execute();
+
+                    //Response To Speech
+                    final Handler textViewHandler = new Handler();
+                    textViewHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                @Override
+                                public void onInit(int status) {
+                                    if (status != TextToSpeech.ERROR) {
+                                        Locale locale = new Locale("tr", "TR");
+                                        textToSpeech.setLanguage(locale);
+
+                                        textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
                 imageUploadProgress.setVisibility(View.INVISIBLE);
             }
         }.execute();
