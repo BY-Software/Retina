@@ -89,7 +89,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private String api = "LABEL_DETECTION";
 
-    private String speechText;
+    private String speechText, stringTempEN;
+    private Boolean comp = false;
 
     private Unbinder butterKnifeUnbinder;
 
@@ -192,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private void promptSpeechInput() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "tr-TR");
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt));
         try {
             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
@@ -201,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    //Speech
     @SuppressLint("StaticFieldLeak")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -212,28 +214,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     response = result.get(0).toLowerCase();
                     textViewResult.setText(response);
-                    String stringTemp;
+                    //TODO: karşılaştırma yaptır
+                    final String stringTemp;
+                    String[] words;
+
+                    Log.e("onActivityResult full: ", response);
 
                     if (response != null) {
-                        stringTemp = response.replaceAll("\\s", "");
-                        if (stringTemp.equals("watch")) {
-                            //Response To Speech
-                            final Handler textViewHandler = new Handler();
-                            textViewHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                        @Override
-                                        public void onInit(int status) {
-                                            if (status != TextToSpeech.ERROR) {
-                                                Locale locale = new Locale("tr", "TR");
-                                                textToSpeech.setLanguage(locale);
-                                                textToSpeech.speak("sâât", TextToSpeech.QUEUE_FLUSH, null);
-                                            }
-                                        }
-                                    });
-                                }
-                            });
+                        words = response.split(" ");
+                        stringTemp = words[0];
+
+                        Log.e("onActivityResult trim: ", stringTemp);
+
+                        if (stringTemp.equals("saat")) {
+                            stringTempEN = "watch";
                         } else {
                             // Translate text
                             new AsyncTask<Void, Void, Void>() {
@@ -245,32 +239,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                     Translate translate = options.getService();
                                     final Translation translation =
                                             translate.translate(response,
-                                                    Translate.TranslateOption.targetLanguage("tr"));
+                                                    Translate.TranslateOption.targetLanguage("en"));
 
-                                    speechText = translation.getTranslatedText();
+                                    stringTempEN = translation.getTranslatedText();
                                     return null;
                                 }
                             }.execute();
-
-                            //Response To Speech
-                            final Handler textViewHandler = new Handler();
-                            textViewHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                        @Override
-                                        public void onInit(int status) {
-                                            if (status != TextToSpeech.ERROR) {
-                                                Locale locale = new Locale("tr", "TR");
-                                                textToSpeech.setLanguage(locale);
-
-                                                textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
-                                            }
-                                        }
-                                    });
-                                }
-                            });
                         }
+                        //Response To Speech
+                        final Handler textViewHandler = new Handler();
+                        textViewHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                    @Override
+                                    public void onInit(int status) {
+                                        if (status != TextToSpeech.ERROR) {
+                                            Locale locale = new Locale("tr", "tr");
+                                            textToSpeech.setLanguage(locale);
+                                            textToSpeech.speak(stringTempEN, TextToSpeech.QUEUE_FLUSH, null);
+                                        }
+                                    }
+                                });
+                            }
+                        });
                     }
                 }
                 break;
