@@ -79,8 +79,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private String response;
 
-    private boolean mCapturingPicture;
     private Size mCaptureNativeSize;
+    private Boolean mCapturingPicture;
     private long mCaptureTime;
     private int maxVolume;
 
@@ -90,7 +90,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private String api = "LABEL_DETECTION";
 
     private String speechText, stringTempEN;
-    private Boolean comp = false;
+    private String[] words;
+    private Boolean checkObject = false;
 
     private Unbinder butterKnifeUnbinder;
 
@@ -214,19 +215,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     response = result.get(0).toLowerCase();
                     textViewResult.setText(response);
-                    //TODO: karşılaştırma yaptır
-                    final String stringTemp;
-                    String[] words;
 
                     Log.e("onActivityResult full: ", response);
 
                     if (response != null) {
                         words = response.split(" ");
-                        stringTemp = words[0];
+                        Log.e("onActivityResult trim: ", words[0]);
 
-                        Log.e("onActivityResult trim: ", stringTemp);
-
-                        if (stringTemp.equals("saat")) {
+                        if (words[0].equals("saat")) {
                             stringTempEN = "watch";
                         } else {
                             // Translate text
@@ -246,6 +242,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                 }
                             }.execute();
                         }
+                        checkObject = true;
+                        speechText = "Aranan nesne: " + words[0] + ", aramak için ekrana bir kez dokununuz.";
+
                         //Response To Speech
                         final Handler textViewHandler = new Handler();
                         textViewHandler.post(new Runnable() {
@@ -255,9 +254,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                     @Override
                                     public void onInit(int status) {
                                         if (status != TextToSpeech.ERROR) {
-                                            Locale locale = new Locale("tr", "tr");
+                                            Locale locale = new Locale("tr", "TR");
                                             textToSpeech.setLanguage(locale);
-                                            textToSpeech.speak(stringTempEN, TextToSpeech.QUEUE_FLUSH, null);
+
+                                            textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
                                         }
                                     }
                                 });
@@ -380,61 +380,55 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 final String speechTextEnglish = speechTxtArray[0];
                 String stringTempCloud;
                 stringTempCloud = speechTextEnglish.replaceAll("\\s", "");
-                if (stringTempCloud.equals("watch")) {
-                    //Response To Speech
-                    final Handler textViewHandler = new Handler();
-                    textViewHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                @Override
-                                public void onInit(int status) {
-                                    if (status != TextToSpeech.ERROR) {
-                                        Locale locale = new Locale("tr", "TR");
-                                        textToSpeech.setLanguage(locale);
-                                        textToSpeech.speak("sâât", TextToSpeech.QUEUE_FLUSH, null);
-                                    }
-                                }
-                            });
-                        }
-                    });
+                if (checkObject) {
+                    if(stringTempEN.equals(stringTempCloud)){
+                        speechText = words[0] + " karşınızda.";
+                        checkObject = false;
+                    }else {
+                        speechText = words[0] + " bulunamadı tekrar deneyiniz.";
+                    }
                 } else {
-                    // Translate text
-                    new AsyncTask<Void, Void, Void>() {
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            TranslateOptions options = TranslateOptions.newBuilder()
-                                    .setApiKey(API_KEY)
-                                    .build();
-                            Translate translate = options.getService();
-                            final Translation translation =
-                                    translate.translate(speechTextEnglish,
-                                            Translate.TranslateOption.targetLanguage("tr"));
+                    if (stringTempCloud.equals("watch")) {
+                        speechText = "sâât";
+                    } else {
+                        // Translate text
+                        new AsyncTask<Void, Void, Void>() {
+                            @Override
+                            protected Void doInBackground(Void... params) {
+                                TranslateOptions options = TranslateOptions.newBuilder()
+                                        .setApiKey(API_KEY)
+                                        .build();
+                                Translate translate = options.getService();
+                                final Translation translation =
+                                        translate.translate(speechTextEnglish,
+                                                Translate.TranslateOption.targetLanguage("tr"));
 
-                            speechText = translation.getTranslatedText();
-                            return null;
-                        }
-                    }.execute();
-
-                    //Response To Speech
-                    final Handler textViewHandler = new Handler();
-                    textViewHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                @Override
-                                public void onInit(int status) {
-                                    if (status != TextToSpeech.ERROR) {
-                                        Locale locale = new Locale("tr", "TR");
-                                        textToSpeech.setLanguage(locale);
-
-                                        textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
-                                    }
-                                }
-                            });
-                        }
-                    });
+                                speechText = translation.getTranslatedText();
+                                return null;
+                            }
+                        }.execute();
+                    }
                 }
+
+                //Response To Speech
+                final Handler textViewHandler = new Handler();
+                textViewHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+                            @Override
+                            public void onInit(int status) {
+                                if (status != TextToSpeech.ERROR) {
+                                    Locale locale = new Locale("tr", "TR");
+                                    textToSpeech.setLanguage(locale);
+
+                                    textToSpeech.speak(speechText, TextToSpeech.QUEUE_FLUSH, null);
+                                }
+                            }
+                        });
+                    }
+                });
+
                 imageUploadProgress.setVisibility(View.INVISIBLE);
             }
         }.execute();
