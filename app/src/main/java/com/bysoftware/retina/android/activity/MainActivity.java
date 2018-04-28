@@ -30,7 +30,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bysoftware.retina.android.BuildConfig;
 import com.bysoftware.retina.android.R;
@@ -165,7 +164,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 camera.captureSnapshot();
                 Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 vibe.vibrate(100);
-                Toast.makeText(getApplicationContext(), "SINGLE CLICK", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -173,7 +171,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 promptSpeechInput();
                 Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 vibe.vibrate(500);
-                Toast.makeText(getApplicationContext(), "DOUBLE CLICK", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -199,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         try {
             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
         } catch (ActivityNotFoundException a) {
-            Toast.makeText(getApplicationContext(), getString(R.string.speech_not_supported), Toast.LENGTH_SHORT).show();
+            Log.e("promptSpeechInput: ", getString(R.string.speech_not_supported));
         }
     }
 
@@ -234,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                             .build();
                                     Translate translate = options.getService();
                                     final Translation translation =
-                                            translate.translate(response,
+                                            translate.translate(words[0],
                                                     Translate.TranslateOption.targetLanguage("en"));
 
                                     stringTempEN = translation.getTranslatedText();
@@ -381,6 +378,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 String stringTempCloud;
                 stringTempCloud = speechTextEnglish.replaceAll("\\s", "");
                 if (checkObject) {
+
+                    buttonRecord.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            checkObject = false;
+                            Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                            vibe.vibrate(250);
+                            speechText = words[0] + " aramsı sonlandırıldı.";
+                            return true;
+                        }
+                    });
+
+                    Log.e("stringTempCloud: ", stringTempCloud);
+                    Log.e("stringTempEN: ", stringTempEN);
+
                     if(stringTempEN.equals(stringTempCloud)){
                         speechText = words[0] + " karşınızda.";
                         checkObject = false;
