@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             }.execute();
                         }
                         checkObject = true;
-                        speechText = "Aranan nesne: " + words[0] + ", aramak için ekrana bir kez dokununuz.";
+                        speechText = "Aranan nesne: " + words[0] + ", aramak için ekrana bir kez dokununuz. Aramadan çıkmak için ekrana uzun basınız.";
 
                         //Response To Speech
                         final Handler textViewHandler = new Handler();
@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 } catch (IOException e) {
                     Log.d(TAG, "failed to make API request because of other IOException " + e.getMessage());
                 }
-                return "Cloud Vision API request failed. Check logs for details.";
+                return "Internet bağlantısını kontrol ediniz.";
             }
 
             protected void onPostExecute(String result) {
